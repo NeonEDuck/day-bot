@@ -1,4 +1,4 @@
-from discord import Message, Embed
+from discord import Message, Embed, Guild
 from discord.ext import commands, tasks
 from discord_slash import cog_ext
 from discord_slash.utils.manage_commands import create_option, create_choice
@@ -47,15 +47,23 @@ class Response(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot: commands.Bot = bot
         self.data_manager = DataManager('response')
+        
+    @commands.Cog.listener()
+    async def on_ready(self) -> None:
+        """Check if data exist on ready"""
+        for guild in self.bot.guilds:
+            if not self.data_manager.get_val(guild.id):
+                self.data_manager.set_val(guild.id, { 'trips': [], 'reacts': [] })
 
-    # @commands.Cog.listener()
-    # async def on_guild_remove(self, guild: discord.Guild) -> None:
-    #     """在離開伺服器時的處理
+    @commands.Cog.listener()
+    async def on_guild_join(self, guild: Guild) -> None:
+        """Set default data when join the guild"""
+        self.data_manager.set_val(guild.id, { 'trips': [], 'reacts': [] })
 
-    #     在離開伺服器時，將伺服器所有投票從資料庫刪除。
-    #     """
-    #     for _, title in self.data_manager.keys(guild.id):
-    #         self.data_manager.del_val(title, guild.id)
+    @commands.Cog.listener()
+    async def on_guild_remove(self, guild: Guild) -> None:
+        """Delete the data if remove from guild"""
+        self.data_manager.del_val(guild.id)
     
     @commands.Cog.listener()
     async def on_message(self, message: Message) -> None:
@@ -68,10 +76,6 @@ class Response(commands.Cog):
         # print(message.content)
 
         data: Dict[str, Any] = self.data_manager.get_val(message.guild.id)
-        
-        if not data:
-            data = { 'trips': [], 'reacts': [] }
-            self.data_manager.set_val(message.guild.id, data)
 
         replys = []
         
@@ -118,10 +122,6 @@ class Response(commands.Cog):
 
         data: Dict[str, Any] = self.data_manager.get_val(ctx.guild_id)
 
-        if not data:
-            data = { 'trips': [], 'reacts': [] }
-            self.data_manager.set_val(ctx.guild_id, data)
-
         react_bits: int = 0
         
         # find exsiting react pos for bits
@@ -156,10 +156,10 @@ class Response(commands.Cog):
 
             self.data_manager.set_val(ctx.guild_id, data)
 
-            await ctx.reply(content=f'{", ".join([ t.strip() for t in trip_list ])} are successfully added!')
+            await ctx.reply(f'{", ".join([ t.strip() for t in trip_list ])} are successfully added!')
         else:
             miss_text: str = ' or '.join( ([] if trip_list else ['trips']) + ([] if react_list else ['reacts']) )
-            await ctx.reply(content=f'You did not enter any {miss_text}!')
+            raise KeyError('response', f'You did not enter any {miss_text}!')
         
 
     response_remove_kwargs = {
@@ -196,10 +196,6 @@ class Response(commands.Cog):
         react_list: List[str]   = list(dict.fromkeys([ self.to_origin(r).strip() for r in self.to_bracket(reacts).split('|') if r ]))
 
         data: Dict[str, Any] = self.data_manager.get_val(ctx.guild_id)
-
-        if not data:
-            data = { 'trips': [], 'reacts': [] }
-            self.data_manager.set_val(ctx.guild_id, data)
         
         react_bits: int = 0
         existed_trips: List[str] = []
@@ -233,12 +229,10 @@ class Response(commands.Cog):
 
         self.data_manager.set_val(ctx.guild_id, data)
 
-        content: str = ""
         if existed_trips:
-            content = f'{", ".join(existed_trips)} are successfully removed!'
+            await ctx.reply(f'{", ".join(existed_trips)} are successfully removed!')
         else:
-            content = f'Are you sure the trips exsit in the first place?'
-        await ctx.reply(content=content)
+            raise KeyError('response', f'Are you sure the trips exsit in the first place?')
 
     @cog_ext.cog_subcommand(
         base='response',
@@ -291,7 +285,7 @@ class Response(commands.Cog):
 
             embed.add_field(name='\u200b', value='\n\n'.join(response_list))
         else:
-            embed.add_field(name='No result of', value=', '.join(trip_list))
+            embed.add_field(name='No result of', value=', '.join(trip_list) + '\u200b')
         
         await ctx.reply(embed=embed)
             

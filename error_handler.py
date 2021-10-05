@@ -13,7 +13,7 @@ def setup(bot: commands.Bot) -> None:
         """
         接收所有指令錯誤
         """
-        if ex.args and ex.args[0] in ('vote', 'permission'):
+        if ex.args and ex.args[0] in ('vote', 'permission', 'response'):
             await ctx.send(content=ex.args[1], hidden=True)
         else:
             traceback.print_tb(ex.__traceback__)
@@ -24,7 +24,7 @@ def setup(bot: commands.Bot) -> None:
         """
         接收所有元件錯誤
         """
-        if ex.args and ex.args[0] in ('vote', 'permission'):
+        if ex.args and ex.args[0] in ('vote', 'permission', 'response'):
             await ctx.send(content=ex.args[1], hidden=True)
         else:
             traceback.print_tb(ex.__traceback__)
