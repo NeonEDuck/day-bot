@@ -105,11 +105,17 @@ class Response(commands.Cog):
                 description='Bot responses, bot will randomly pick a react sentences to send. (Separate the sentences with "|")',
                 option_type=3,
                 required=True
+            ),
+            create_option(
+                name='hide',
+                description='Shhh... Let\'s try not to let others find out what you are adding (Default as False)',
+                option_type=5,
+                required=False
             )
         ]
     }
     @cog_ext.cog_subcommand(**response_add_kwargs)
-    async def _response_add(self, ctx: SlashContext, trips: str, reacts: str) -> None:
+    async def _response_add(self, ctx: SlashContext, trips: str, reacts: str, hide: bool = False) -> None:
         """Add responses command
 
         /response add <trips> <reacts>
@@ -156,7 +162,7 @@ class Response(commands.Cog):
 
             self.data_manager.set_val(ctx.guild_id, data)
 
-            await ctx.reply(f'{", ".join([ t.strip() for t in trip_list ])} are successfully added!')
+            await ctx.reply(f'{", ".join([ t.strip() for t in trip_list ])} are successfully added!', hidden=hide)
         else:
             miss_text: str = ' or '.join( ([] if trip_list else ['trips']) + ([] if react_list else ['reacts']) )
             raise KeyError('response', f'You did not enter any {miss_text}!')
@@ -178,11 +184,17 @@ class Response(commands.Cog):
                 description='Optional. Specify the reacts you want to remove from responses. (Separate the sentences with "|")',
                 option_type=3,
                 required=False
+            ),
+            create_option(
+                name='hide',
+                description='Shhh... Let\'s try not to let others find out what you are removing (Default as False)',
+                option_type=5,
+                required=False
             )
         ]
     }
     @cog_ext.cog_subcommand(**response_remove_kwargs)
-    async def _response_remove(self, ctx: SlashContext, trips: str, reacts: str = '') -> None:
+    async def _response_remove(self, ctx: SlashContext, trips: str, reacts: str = '', hide: bool = False) -> None:
         """Remove responses command
 
         /response remove <trips> [reacts]
@@ -230,7 +242,7 @@ class Response(commands.Cog):
         self.data_manager.set_val(ctx.guild_id, data)
 
         if existed_trips:
-            await ctx.reply(f'{", ".join(existed_trips)} are successfully removed!')
+            await ctx.reply(f'{", ".join(existed_trips)} are successfully removed!', hidden=hide)
         else:
             raise KeyError('response', f'Are you sure the trips exsit in the first place?')
 
