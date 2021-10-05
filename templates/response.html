@@ -1,0 +1,81 @@
+<head>
+<style>
+body, html {
+    font-family: sans-serif;
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+table {
+    min-width: 60em;
+    border-collapse: collapse;
+}
+
+table,
+tbody td,
+tbody th {
+    border: 1px solid black;
+    background-color: #69b9b9;
+    padding: 1em;
+}
+
+thead {
+    background-color: #34959e;
+}
+
+.even * {
+    background-color: #4ba2a7;
+}
+
+table img {
+    max-height: 10em;
+}
+
+img.emoji {
+    max-height: 2em;
+}
+
+</style>
+</head>
+<body>
+   <main>
+        <h1>All Response</h1>
+        <table>
+            {% set maxcol = responsesPedia.values()|map('length')|max %}
+            <thead>
+            <th>Mention</th>
+            <th colspan="{{maxcol}}">Responses</th>
+            </thead>
+            <tbody>
+                {% set globle = namespace(even=True) %}
+                {% for mentions, responses in responsesPedia.items() %}
+
+                    {% set mspl = mentions.split('</>') %}
+                    {% set globle.even = not globle.even %}
+                    {% for i in range(mspl|length) %}
+                        {% set m = mspl[i] %}
+                        <tr class="{{'even' if globle.even else 'odd'}}">
+                            <th>{{m}}</th>
+                            {% if i == 0 %}
+                                {% for j in range(responses|length) %}
+                                    {% set r = responses[j] %}
+                                    {% set rl = responses|length %}
+                                    {% if j+1 == rl %}
+                                        <td rowspan="{{mspl|length}}" colspan="{{maxcol-j}}">{{r|safe}}</td>
+                                    {% else %}
+                                        <td rowspan="{{mspl|length}}">{{r|safe}}</td>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </main>
+</body>

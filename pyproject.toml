@@ -1,0 +1,28 @@
+[tool.poetry]
+description = ""
+name = "DayBot"
+version = "0.1.0"
+authors = ["NEDuck <cj96cj9696cj@gmail.com>"]
+
+[tool.poetry.dependencies]
+Flask = "^2.0.1"
+discord = "^1.7.3"
+discord-py-slash-command = "^2.4.1"
+python = "^3.8"
+python-dotenv = "^0.19.0"
+replit = "^3.2.4"
+
+[tool.mypy]
+python_version = "3.8"
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_untyped_calls = true
+warn_redundant_casts = true
+
+[[tool.mypy.overrides]]
+module = [
+    "discord.*",
+    "discord_slash.*",
+    "replit"
+]
+ignore_missing_imports = true
