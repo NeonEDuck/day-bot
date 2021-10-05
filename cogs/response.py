@@ -287,7 +287,7 @@ class Response(commands.Cog):
         else:
             embed.add_field(name='No result of', value=', '.join(trip_list) + '\u200b')
         
-        await ctx.reply(embed=embed)
+        await ctx.reply(embed=embed, hidden=True)
             
             
     def to_bracket(self, s: str) -> str:
