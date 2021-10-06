@@ -293,11 +293,10 @@ class Response(commands.Cog):
                 response_list.append( f'[ {", ".join(words)} ]:' + ''.join([ f'\n{data["reacts"][pos]}' for pos in react_pos_list ]) )
                 
                 if len('\n\n'.join(response_list)) > 1024:
-                    embed.add_field(name='\u200b', value='\n\n'.join(response_list[:-1]))
-                    embed.add_field(name='\u200b', value='\u200b', inline=False)
+                    embed.add_field(name='\u200b', value='\n\n'.join(response_list[:-1]), inline=False)
                     response_list = [ response_list[-1] ]
 
-            embed.add_field(name='\u200b', value='\n\n'.join(response_list))
+            embed.add_field(name='\u200b', value='\n\n'.join(response_list), inline=False)
         else:
             embed.add_field(name='No result of', value=', '.join(trip_list) + '\u200b')
         
