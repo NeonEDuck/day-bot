@@ -288,7 +288,7 @@ class Response(commands.Cog):
             
         if trip_links:
             response_list: List[str] = []
-            for link, words in [ (l, [ f'"{g[1]}"' for g in gs ]) for l, gs in groupby(trip_links, key=lambda x:x[0]) ]:
+            for link, words in [ (l, [ f'"{g[1]}"' for g in gs ]) for l, gs in groupby(sorted(trip_links, key=lambda x:x[0]), key=lambda x:x[0]) ]:
                 react_pos_list: List[int] = [ int(log2(bit)) for bit in get_bit_positions(link) ]
                 response_list.append( f'[ {", ".join(words)} ]:' + ''.join([ f'\n{data["reacts"][pos]}' for pos in react_pos_list ]) )
                 
