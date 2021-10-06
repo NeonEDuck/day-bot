@@ -228,6 +228,8 @@ class Response(commands.Cog):
                     data['trips'][words.index(trip)]['links'] &= ~react_bits
                     if not data['trips'][words.index(trip)]['links']:
                         del data['trips'][words.index(trip)]
+                elif react_list:
+                    raise KeyError('response', f'Bot won\'t ever reply {", ".join([ f"[{r}]" for r in react_list ])}')
                 else:
                     del data['trips'][words.index(trip)]
                 existed_trips.append(trip)
@@ -275,7 +277,7 @@ class Response(commands.Cog):
             data = { 'trips': [], 'reacts': [] }
             self.data_manager.set_val(ctx.guild_id, data)
             
-        embed: Embed    = Embed(title='Responses')
+        embed: Embed     = Embed(title='Responses')
         words: List[str] = [ t['word'] for t in data['trips'] ]
         trip_links: List[Tuple[int, str]]
 
