@@ -77,15 +77,18 @@ class Response(commands.Cog):
 
         data: Dict[str, Any] = self.data_manager.get_val(message.guild.id)
 
-        replys = []
+        replys: List[Tuple[int, str]] = []
         
-        for trip in data['trips']:
+        for trip in sorted(data['trips'], key=lambda x:len(x['word']), reverse=True):
             if trip['word'] in message.content:
                 bit: int = choice(list(get_bit_positions(trip['links'])))
-                replys.append(data['reacts'][int(log2(bit))])
+                for match in re.finditer(trip['word'], message.content):
+                    replys.append((match.start(), data['reacts'][int(log2(bit))]))
+        
+        replys = sorted(replys, key=lambda x: x[0])
         
         if replys:
-            await message.reply( '\n'.join( replys ) )  
+            await message.reply('\n'.join([ r[1] for r in replys ]))  
         
     
     response_add_kwargs = {
